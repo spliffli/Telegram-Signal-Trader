@@ -1,5 +1,6 @@
 import configparser
 import json
+import pprint
 import asyncio
 from datetime import date, datetime
 
@@ -39,11 +40,12 @@ username = config['Telegram']['username']
 # Create the client and connect
 client = TelegramClient(username, api_id, api_hash)
 
+
 async def main(phone):
     await client.start()
     print("Client Created")
     # Ensure you're authorized
-    if await client.is_user_authorized() == False:
+    if not await client.is_user_authorized():
         await client.send_code_request(phone)
         try:
             await client.sign_in(phone, input('Enter the code: '))
@@ -52,7 +54,7 @@ async def main(phone):
 
     me = await client.get_me()
 
-    user_input_channel = input('enter entity(telegram URL or entity id):')
+    user_input_channel = 't.me/jonathon_test'  # input('enter entity(telegram URL or entity id):')
 
     if user_input_channel.isdigit():
         entity = PeerChannel(int(user_input_channel))
@@ -67,8 +69,9 @@ async def main(phone):
     total_messages = 0
     total_count_limit = 0
 
+    last_msg_id = 0
     while True:
-        print("Current Offset ID is:", offset_id, "; Total Messages:", total_messages)
+        #print("Current Offset ID is:", offset_id, "; Total Messages:", total_messages)
         history = await client(GetHistoryRequest(
             peer=my_channel,
             offset_id=offset_id,
@@ -79,18 +82,21 @@ async def main(phone):
             min_id=0,
             hash=0
         ))
-        if not history.messages:
-            break
-        messages = history.messages
-        for message in messages:
-            all_messages.append(message.to_dict())
-        offset_id = messages[len(messages) - 1].id
-        total_messages = len(all_messages)
-        if total_count_limit != 0 and total_messages >= total_count_limit:
-            break
+        if history.messages:
+            messages = history.messages
+            for message in messages:
+                mdict = message.to_dict()
+                if mdict['_'] == 'Message' and mdict['id'] > last_msg_id:
+                    pprint.pprint(mdict['message'])
+                all_messages.append(message.to_dict())
+            offset_id = messages[len(messages) - 1].id
+            total_messages = len(all_messages)
+            # if total_count_limit != 0 and total_messages >= total_count_limit:
+            #     break
 
     with open('channel_messages.json', 'w') as outfile:
         json.dump(all_messages, outfile, cls=DateTimeEncoder)
+
 
 with client:
     client.loop.run_until_complete(main(phone))
