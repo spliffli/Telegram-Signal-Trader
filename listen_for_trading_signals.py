@@ -6,6 +6,8 @@ import datetime
 import pprint
 import asyncio
 
+from parse_msg import parse_msg
+
 # Reading Configs
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -25,30 +27,14 @@ exchange = 'Bitrexx'
 with client:
     _peer = 'jonathon_test'
     entity = client.get_entity(_peer)
-    # client.send_message(entity=entity, message="hello")
 
+    # client.send_message(entity=entity, message="hello")
 
     @client.on(events.NewMessage(pattern=f'Your arbitrage alert {exchange} has been triggered!'))
     async def handler(event):
         # here received message, do something with event
-        pprint.pprint(event.to_dict()['message'])  # check all possible methods/operations/attributes
-
-        history = await client(GetHistoryRequest(
-            peer=_peer,
-            offset_id=0,
-            offset_date=None,
-            add_offset=0,
-            limit=5,
-            max_id=0,
-            min_id=0,
-            hash=0
-        ))
-        if history.messages:
-            # asyncio.create_task(result)
-            for message in history.messages:
-                mdict = message.to_dict()
-                pprint.pprint(mdict['message'])
-                # pprint.pprint(message.message.to_dict())
+        msg_str = event.to_dict()['message'].to_dict()['message']
+        pprint.pprint(msg_str)  # check all possible methods/operations/attributes
 
         # reply once and then disconnect
         await event.reply("have a nice day")
