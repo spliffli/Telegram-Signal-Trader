@@ -6,7 +6,7 @@ import datetime
 import pprint
 import asyncio
 
-from parse_msg import parse_msg
+from parse_msg import parse_msg_signals
 
 # Reading Configs
 config = configparser.ConfigParser()
@@ -25,7 +25,7 @@ client = TelegramClient(username, api_id, api_hash)
 exchange = 'Bitrexx'
 
 with client:
-    _peer = 'jonathon_test'
+    _peer = 'jonathon_test'  # '@C5543577423'  #
     entity = client.get_entity(_peer)
 
     # client.send_message(entity=entity, message="hello")
@@ -37,7 +37,20 @@ with client:
         pprint.pprint(msg_str)  # check all possible methods/operations/attributes
 
         # reply once and then disconnect
-        await event.reply("have a nice day")
+        # reply = str(parse_msg_signals(msg_str))
+
+        signal_trades = parse_msg_signals(msg_str)
+        pprint.pprint(signal_trades)
+
+        reply = ('\n\nTrade Signals detected. Initiating the following sequence of trades:'
+                 f"\nBUY {signal_trades[0]['quote']}/USDT"
+                 f"\n{signal_trades[0]['direction']} {signal_trades[0]['pair']}"
+                 f"\n{signal_trades[1]['direction']} {signal_trades[1]['pair']}"
+                 f"\nSELL {signal_trades[1]['quote']}/USDT"
+                 "\n\nThis is just a test to see if the telegram signals can be properly parsed, and no actual trades "
+                 "were made")
+
+        await event.reply(reply)
         # await client.disconnect()
 
 

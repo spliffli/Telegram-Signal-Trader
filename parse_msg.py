@@ -12,12 +12,12 @@ sample_msg = ('Your arbitrage alert Bitrexx has been triggered!\n'
               'https://www.koinknight.com/notification/621e86d0866655178cf6d339')
 
 
-def parse_msg(msg: str):
-    first_index = sample_msg.find('(1)')
-    second_index = sample_msg.find('(2)')
+def parse_msg_signals(msg: str):
+    first_index = msg.find('(1)')
+    second_index = msg.find('(2)')
 
-    signal_first_trade_str = sample_msg[first_index:sample_msg.find('\n', first_index)]
-    signal_second_trade_str = sample_msg[second_index:sample_msg.find('\n', second_index)]
+    signal_first_trade_str = msg[first_index:msg.find('\n', first_index)]
+    signal_second_trade_str = msg[second_index:msg.find('\n', second_index)]
 
     signal_first_trade_arr = signal_first_trade_str.split()
     signal_second_trade_arr = signal_second_trade_str.split()
@@ -41,4 +41,4 @@ def parse_msg(msg: str):
     return [first_trade, second_trade]
 
 
-pprint.pprint(parse_msg(sample_msg))
+# pprint.pprint(parse_msg_signals(sample_msg))
