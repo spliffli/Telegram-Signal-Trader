@@ -7,6 +7,8 @@ import pprint
 import asyncio
 
 from parse_msg import parse_msg_signals
+from calc_trade_path import calc_trade_path, parse_trade_path_to_str
+from execute_trades import execute_trades
 
 # Reading Configs
 config = configparser.ConfigParser()
@@ -22,7 +24,7 @@ username = config['Telegram']['username']
 
 client = TelegramClient(username, api_id, api_hash)
 
-exchange = 'Bitrexx'
+# exchange = 'HitBTC'
 
 with client:
     _peer = 'jonathon_test'  # '@C5543577423'  #
@@ -30,27 +32,26 @@ with client:
 
     # client.send_message(entity=entity, message="hello")
 
-    @client.on(events.NewMessage(pattern=f'Your arbitrage alert {exchange} has been triggered!'))
+    @client.on(events.NewMessage())  # (pattern=f'Your arbitrage alert {exchange} has been triggered!'))
     async def handler(event):
         # here received message, do something with event
         msg_str = event.to_dict()['message'].to_dict()['message']
-        pprint.pprint(msg_str)  # check all possible methods/operations/attributes
+        print(f"---------\n{msg_str}\n---------")  # check all possible methods/operations/attributes
 
         # reply once and then disconnect
         # reply = str(parse_msg_signals(msg_str))
 
         signal_trades = parse_msg_signals(msg_str)
-        pprint.pprint(signal_trades)
+        trade_path = calc_trade_path(signal_trades)
+        print(f"[trade_path]\n{trade_path}\n[/trade_path]")
 
-        reply = ('\n\nTrade Signals detected. Initiating the following sequence of trades:'
-                 f"\nBUY {signal_trades[0]['quote']}/USDT"
-                 f"\n{signal_trades[0]['direction']} {signal_trades[0]['pair']}"
-                 f"\n{signal_trades[1]['direction']} {signal_trades[1]['pair']}"
-                 f"\nSELL {signal_trades[1]['quote']}/USDT"
+        reply = ('\n\nTrade Signals detected. Initiating the following sequence of trades:\n'
+                 f"\n{parse_trade_path_to_str(trade_path)}"
                  "\n\nThis is just a test to see if the telegram signals can be properly parsed, and no actual trades "
                  "were made")
 
         await event.reply(reply)
+        execute_trades(trade_path)
         # await client.disconnect()
 
 

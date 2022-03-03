@@ -30,7 +30,8 @@ def trade_obj(pair, direction):
     trade_obj = {'base': pair.split('/')[0],
                  'quote': pair.split('/')[1],
                  'direction': direction,
-                 'pair': pair}
+                 'pair': pair,
+                 }
 
     return trade_obj
 
@@ -53,7 +54,7 @@ def parse_trade_path_to_str(trade_path: list):
     lst = []
 
     for trade in trade_path:
-        print(trade)
+        # print(trade)
         lst.append(f"{trade['direction']} {trade['pair']}")
 
     parsed_str = '\n'.join(lst)
@@ -64,5 +65,5 @@ def parse_trade_path_to_str(trade_path: list):
 my_trade_path = calc_trade_path(sample_trades)
 my_parsed_trade_path = parse_trade_path_to_str(my_trade_path)
 
-pprint.pprint(my_trade_path)
-print(my_parsed_trade_path)
+# pprint.pprint(my_trade_path)
+# print(my_parsed_trade_path)
