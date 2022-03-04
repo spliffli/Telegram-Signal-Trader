@@ -36,19 +36,34 @@ def get_free_balances(_exchange):
     return nonzero_balances
 
 
+""" [DEBUG/TEST]
 pprint(get_free_balances(exchange))
-order = 'None'  # exchange.createOrder('ETH/USDT', 'market', 'buy', 2.2640401e-05)
+order = exchange.createOrder('DOGE/USDT', 'market', 'buy', 1)
 pprint(f"Order:\n{order}\n"
-      f"------------------------------\n"
-      f"New Balances:\n{get_free_balances(exchange)}")
+       f"------------------------------\n"
+       f"New Balances:\n")
+pprint(get_free_balances(exchange))
+
+# print(exchange.fetch_order('DOGE/USDT'))
+"""
 
 
 def execute_trades(trade_path):
-    for trade in trade_path:
+    usdt_free_balance = get_free_balances(exchange).get('USDT').get('free')
+    print(f"Executing trades on {exchange}...\n"
+          f"Starting USDT Balance: {usdt_free_balance}")
+    current_trade = {}
+    for trade in enumerate(trade_path):
+        print(f"{trade[0]+1}. {trade[1]}")
+
         pass
 
     return 1
 
+
+# ###########[TESTING]###############
+execute_trades(sample_trade_path)
+# ###################################
 
 def send_market_order(pair, direction, quantity, live_trade=False):
     print(f"Opening Market Order: \n{direction} {quantity} {pair}")

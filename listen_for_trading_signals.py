@@ -36,7 +36,7 @@ with client:
     async def handler(event):
         # here received message, do something with event
         msg_str = event.to_dict()['message'].to_dict()['message']
-        print(f"---------\n{msg_str}\n---------")  # check all possible methods/operations/attributes
+        # print(f"---------\n{msg_str}\n---------")  # check all possible methods/operations/attributes
 
         # reply once and then disconnect
         # reply = str(parse_msg_signals(msg_str))
