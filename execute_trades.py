@@ -7,7 +7,11 @@ config.read("config.ini")
 
 hitbtc = ccxt.hitbtc({
     'apiKey': config['HitBTC']['apiKey'],
-    'secret': config['HitBTC']['secret']
+    'secret': config['HitBTC']['secret'],
+    'enableRateLimit': true,
+    'options': {
+        'createMarketBuyOrderRequiresPrice': false, # This means I can specify the cost of the trade instead of the price to minimize API requests and not have to calculate the price
+    },
 })
 
 kucoin = ccxt.kucoin({
@@ -44,6 +48,9 @@ def get_free_balances(_exchange):
     return nonzero_balances
 
 
+pprint(get_free_balances(exchange))
+
+
 """ [DEBUG/TEST]
 pprint(get_free_balances(exchange))
 order = exchange.createOrder('DOGE/USDT', 'market', 'buy', 1)
@@ -72,7 +79,10 @@ def send_market_order(pair, direction, quantity, live_trade=True):
 
 def open_buy_order(pair, quantity, live_trade=False):
     if live_trade:
-        order = exchange.createOrder(pair, 'market', 'buy', quantity)
+        #  order = exchange.createOrder(pair, 'market', 'buy', quantity)
+        order = exchange.create_market_buy_order(pair, quantity)
+        pprint(order)
+        pprint(get_free_balances(exchange))
     elif not live_trade:
         order = f"open_market_order({pair}, {quantity}, live_trade=False)"
     return order
@@ -80,7 +90,11 @@ def open_buy_order(pair, quantity, live_trade=False):
 
 def open_sell_order(pair, quantity, live_trade=False):
     if live_trade:
-        order = exchange.createOrder(pair, 'market', 'sell', quantity)
+        # order = exchange.createOrder(pair, 'market', 'sell', quantity)
+        order = exchange.create_market_buy_order(pair, quantity)
+        pprint(order)
+        pprint(get_free_balances(exchange))
+
     elif not live_trade:
         order = f"open_market_order({pair}, {quantity}, live_trade=False)"
     return order

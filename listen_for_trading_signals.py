@@ -41,6 +41,8 @@ with client:
         # reply once and then disconnect
         # reply = str(parse_msg_signals(msg_str))
 
+        # TODO: confirm that signal is coming from specified channel ID, otherwise don't execute
+
         signal_trades = parse_msg_signals(msg_str)
         trade_path = calc_trade_path(signal_trades)
         """
