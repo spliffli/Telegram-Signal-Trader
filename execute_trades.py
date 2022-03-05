@@ -101,6 +101,8 @@ def execute_trades(trade_path, signal_trades):
     global current_trade_qty
     stake_qty = start_usdt_balance  # TODO: calculate optimal stake_qty from signal max_profit
 
+    executed_trades = []
+
 
     for trade in enumerate(trade_path):
         global current_trade_qty
@@ -111,7 +113,10 @@ def execute_trades(trade_path, signal_trades):
         current_trade += 1
         pair = trade[1].get('pair')
         direction = trade[1].get('direction')
-        send_market_order(pair, direction, current_trade_qty, live_trade=True)
+        order = send_market_order(pair, direction, current_trade_qty, live_trade=True)
+        executed_trades.append(order)
+
+
         try:
             if direction == 'BUY':
                 next_coin = trade[1].get('base')
@@ -123,17 +128,30 @@ def execute_trades(trade_path, signal_trades):
             """
             print(f"{trade[0] + 1}. "
                   f"Opened Market Order: \n{direction} {current_trade_qty} {pair}\n")
-            """
+            
             trade_log += (f"{trade[0] + 1}. "
                                  #  f"Opened Market Order: \n"
                                  f"{direction} {current_trade_qty} {pair}\n")
+            """
         except:
             trade_log += f"\nError: Failed to {direction.lower} {pair} as there wasn't enough balance.\nTrade sequence aborted."
 
+    for trade in enumerate(executed_trades):
+        datetime = trade[1]['datetime']
+        direction = trade[1]['side']
+        qty = trade[1]['amount']
+        pair = trade[1]['symbol']
+        cost = trade[1]['cost']
+
+        trade_log += (f"{trade[0] + 1}. "
+                      #  f"Opened Market Order: \n"
+                      f"{direction.upper()} {qty} {pair}\n")
+
+
     end_usdt_balance = get_free_balances(exchange).get('USDT').get('free')
     trade_log += (f"\nStart Balance: ${start_usdt_balance} (USDT)\n"
-                         f"End Balance: ${end_usdt_balance} (USDT)\n"
-                         f"Profit: ${end_usdt_balance-start_usdt_balance} (USDT)")
+                  f"End Balance: ${end_usdt_balance} (USDT)\n"
+                  f"Profit: ${end_usdt_balance-start_usdt_balance} (USDT)")
     return trade_log
 
 

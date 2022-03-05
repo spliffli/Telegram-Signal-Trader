@@ -53,7 +53,8 @@ with client:
                 )
         await event.reply(reply)
         trade_log = execute_trades(trade_path, signal_trades)
-        await event.reply(trade_log)
+        await client.send_message(entity='jonathon_test', message=trade_log)
+        # await event.reply(trade_log)
         # await client.disconnect()
 
 
