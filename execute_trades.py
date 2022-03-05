@@ -54,7 +54,8 @@ pprint(get_free_balances(exchange))
 """
 
 def send_market_order(pair, direction, quantity, live_trade=True):
-    print(f"Opening Market Order: \n{direction} {quantity} {pair}")
+    # print(f"Opened Market Order: \n{direction} {quantity} {pair}")
+
     if direction == 'BUY':
         if not live_trade:
             return open_buy_order(pair, quantity, live_trade=False)
@@ -88,15 +89,22 @@ current_trade_qty = 0   # Should find a way to not have to declare this globally
 
 
 def execute_trades(trade_path, signal_trades):
-    usdt_free_balance = get_free_balances(exchange).get('USDT').get('free')
+    start_usdt_balance = get_free_balances(exchange).get('USDT').get('free')
+    notification_msg = ''
+    """
     print(f"Executing trades on {exchange}...\n"
           f"Starting USDT Balance: {usdt_free_balance}")
+    """
+    notification_msg += (f"Executed signal on {exchange}...\n\n"
+                         )
     current_trade = 0
     global current_trade_qty
-    stake_qty = usdt_free_balance  # TODO: calculate optimal stake_qty from signal max_profit
+    stake_qty = start_usdt_balance  # TODO: calculate optimal stake_qty from signal max_profit
+
+
     for trade in enumerate(trade_path):
         global current_trade_qty
-        print(f"{trade[0] + 1}. {trade[1]}")
+
         if current_trade == 0:
             current_trade_qty = stake_qty
 
@@ -112,13 +120,26 @@ def execute_trades(trade_path, signal_trades):
                 next_coin = trade[1].get('quote')
 
             current_trade_qty = get_free_balances(exchange).get(next_coin).get('free')
-
+            """
+            print(f"{trade[0] + 1}. "
+                  f"Opened Market Order: \n{direction} {current_trade_qty} {pair}\n")
+            """
+            notification_msg += (f"{trade[0] + 1}. "
+                                 #  f"Opened Market Order: \n"
+                                 f"{direction} {current_trade_qty} {pair}\n")
         except:
-            return f"Error: Failed to {direction.lower} {pair} as there wasn't enough balance.\nTrade sequence aborted."
-            break
+            notification_msg += f"\nError: Failed to {direction.lower} {pair} as there wasn't enough balance.\nTrade sequence aborted."
+
+    end_usdt_balance = get_free_balances(exchange).get('USDT').get('free')
+    notification_msg += (f"\nStart Balance: ${start_usdt_balance} (USDT)\n"
+                         f"End Balance: ${end_usdt_balance} (USDT)\n"
+                         f"Profit: ${end_usdt_balance-start_usdt_balance} (USDT)")
+    return notification_msg
+
 
 
 # ###########[TESTING]###############
-execute_trades(sample_trade_path, sample_signal_trades)
-print(f"Ending USDT Balance: {get_free_balances(exchange).get('USDT').get('free')}")
+
+print(execute_trades(sample_trade_path, sample_signal_trades))
+
 # ###################################
