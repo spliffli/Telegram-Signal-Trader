@@ -24,15 +24,15 @@ username = config['Telegram']['username']
 
 client = TelegramClient(username, api_id, api_hash)
 
-# exchange = 'HitBTC'
 
 with client:
     _peer = 'jonathon_test'  # '@C5543577423'  #
     entity = client.get_entity(_peer)
+    exchange = config['Bot Settings']['exchange']
 
     # client.send_message(entity=entity, message="hello")
 
-    @client.on(events.NewMessage())  # (pattern=f'Your arbitrage alert {exchange} has been triggered!'))
+    @client.on(events.NewMessage(pattern=f'Your arbitrage alert {exchange} has been triggered!'))
     async def handler(event):
         # here received message, do something with event
         msg_str = event.to_dict()['message'].to_dict()['message']

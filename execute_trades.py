@@ -16,10 +16,12 @@ kucoin = ccxt.kucoin({
   "password": config['KuCoin']['password']
 })
 
-if config['Bot Settings']['exchange'] == 'hitbtc':
+if config['Bot Settings']['exchange'] == 'HitBTC':
     exchange = hitbtc
-elif config['Bot Settings']['exchange'] == 'kucoin':
+elif config['Bot Settings']['exchange'] == 'KuCoin':
     exchange = kucoin
+else:
+    raise ValueError("Invalid Exchange. The only working options are HitBTC and KuCoin")
 
 sample_trade_path = [{'base': 'GALA', 'quote': 'USDT', 'direction': 'BUY', 'pair': 'GALA/USDT'},
                      {'base': 'GALA', 'quote': 'BTC', 'direction': 'SELL', 'pair': 'GALA/BTC'},
