@@ -134,7 +134,6 @@ def execute_trades(trade_path, signal_trades):
 
     executed_trades = []
 
-
     for trade in enumerate(trade_path):
         global current_trade_qty
 
@@ -176,8 +175,7 @@ def execute_trades(trade_path, signal_trades):
 
         trade_log += (f"{trade[0] + 1}. "
                       #  f"Opened Market Order: \n"
-                      f"{direction.upper()} {qty} {pair}\n")
-
+                      f"{direction.upper()} {'{:f}'.format(qty)} {pair}\n")
 
     end_usdt_balance = get_free_balances(exchange).get('USDT').get('free')
     trade_log += (f"\nStart Balance: ${start_usdt_balance} (USDT)\n"
