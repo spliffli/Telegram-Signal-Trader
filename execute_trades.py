@@ -25,6 +25,12 @@ sample_trade_path = [{'base': 'GALA', 'quote': 'USDT', 'direction': 'BUY', 'pair
                      {'base': 'GALA', 'quote': 'BTC', 'direction': 'SELL', 'pair': 'GALA/BTC'},
                      {'base': 'BTC', 'quote': 'USDT', 'direction': 'SELL', 'pair': 'BTC/USDT'}]
 
+sample_signal_trades = [{'id': '(1)', 'direction': 'BUY', 'pair': 'GALA/USDT', 'exchange': '@HitBTC', 'base': 'GALA', 'quote': 'USDT'},
+                        {'id': '(2)', 'direction': 'SELL', 'pair': 'GALA/BTC', 'exchange': '@HitBTC', 'base': 'GALA', 'quote': 'BTC'},
+                        '0.07',
+                        'intra_exchange arbitrage with volume',
+                        '1.9917']
+
 
 def get_free_balances(_exchange):
     all_balances = _exchange.fetch_balance()
@@ -47,25 +53,7 @@ pprint(get_free_balances(exchange))
 # print(exchange.fetch_order('DOGE/USDT'))
 """
 
-
-def execute_trades(trade_path):
-    usdt_free_balance = get_free_balances(exchange).get('USDT').get('free')
-    print(f"Executing trades on {exchange}...\n"
-          f"Starting USDT Balance: {usdt_free_balance}")
-    current_trade = {}
-    for trade in enumerate(trade_path):
-        print(f"{trade[0]+1}. {trade[1]}")
-
-        pass
-
-    return 1
-
-
-# ###########[TESTING]###############
-execute_trades(sample_trade_path)
-# ###################################
-
-def send_market_order(pair, direction, quantity, live_trade=False):
+def send_market_order(pair, direction, quantity, live_trade=True):
     print(f"Opening Market Order: \n{direction} {quantity} {pair}")
     if direction == 'BUY':
         if not live_trade:
@@ -95,3 +83,42 @@ def open_sell_order(pair, quantity, live_trade=False):
     return order
 
 
+current_trade_qty = 0   # Should find a way to not have to declare this globally
+                        # since it's only used by the function execute_trades
+
+
+def execute_trades(trade_path, signal_trades):
+    usdt_free_balance = get_free_balances(exchange).get('USDT').get('free')
+    print(f"Executing trades on {exchange}...\n"
+          f"Starting USDT Balance: {usdt_free_balance}")
+    current_trade = 0
+    global current_trade_qty
+    stake_qty = usdt_free_balance  # TODO: calculate optimal stake_qty from signal max_profit
+    for trade in enumerate(trade_path):
+        global current_trade_qty
+        print(f"{trade[0] + 1}. {trade[1]}")
+        if current_trade == 0:
+            current_trade_qty = stake_qty
+
+        current_trade += 1
+        pair = trade[1].get('pair')
+        direction = trade[1].get('direction')
+        send_market_order(pair, direction, current_trade_qty, live_trade=True)
+        try:
+            if direction == 'BUY':
+                next_coin = trade[1].get('base')
+
+            elif direction == 'SELL':
+                next_coin = trade[1].get('quote')
+
+            current_trade_qty = get_free_balances(exchange).get(next_coin).get('free')
+
+        except:
+            return f"Error: Failed to {direction.lower} {pair} as there wasn't enough balance.\nTrade sequence aborted."
+            break
+
+
+# ###########[TESTING]###############
+execute_trades(sample_trade_path, sample_signal_trades)
+print(f"Ending USDT Balance: {get_free_balances(exchange).get('USDT').get('free')}")
+# ###################################

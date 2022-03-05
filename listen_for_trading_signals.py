@@ -43,7 +43,8 @@ with client:
 
         signal_trades = parse_msg_signals(msg_str)
         trade_path = calc_trade_path(signal_trades)
-        print(f"[trade_path]\n{trade_path}\n[/trade_path]")
+        print(f"[trade_path]\n{trade_path}\n[/trade_path]\n"
+              f"[signal_trades]\n{signal_trades}\n[/signal_trades]\n")
 
         reply = ('\n\nTrade Signals detected. Initiating the following sequence of trades:\n'
                  f"\n{parse_trade_path_to_str(trade_path)}"
@@ -51,7 +52,7 @@ with client:
                  "were made")
 
         await event.reply(reply)
-        execute_trades(trade_path)
+        execute_trades(trade_path, signal_trades)
         # await client.disconnect()
 
 
