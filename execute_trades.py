@@ -48,8 +48,6 @@ def get_free_balances(_exchange):
     return nonzero_balances
 
 
-pprint(get_free_balances(exchange))
-
 
 """ [DEBUG/TEST]
 pprint(get_free_balances(exchange))
@@ -184,8 +182,32 @@ def execute_trades(trade_path, signal_trades):
     return trade_log
 
 
+def convert_all_balances_to_usdt(exchange):
+    """
+    Not sure if this isn't working properly or if it's because
+    the balances are too small. This function is just for debugging
+    """
+
+    balances = get_free_balances(exchange)
+    pprint(balances)
+    print(f"Selling these balances:\n")
+
+    for balance in enumerate(balances):
+        if balance[1] != 'USDT':
+            print(f"{balance[1]}: "
+                  f"{'{:f}'.format(balances[balance[1]]['free'])}"
+                  )
+            open_sell_order(f"{balance[1]}/USDT", '{:f}'.format(balances[balance[1]]['free']))
+
+    pprint(get_free_balances(exchange))
+
 
 # ###########[TESTING]###############
+# pprint(get_free_balances(exchange))
+# open_sell_order('BTC/USDT', 3.618668e-06*0.99)
+# exchange.createOrder('BTC/USDT', 'market', 'sell', 3.618668e-06)
+# convert_all_balances_to_usdt(exchange)
+# pprint(get_free_balances(exchange))
 
 # print(execute_trades(sample_trade_path, sample_signal_trades))
 
