@@ -8,9 +8,9 @@ config.read("config.ini")
 hitbtc = ccxt.hitbtc({
     'apiKey': config['HitBTC']['apiKey'],
     'secret': config['HitBTC']['secret'],
-    'enableRateLimit': true,
+    'enableRateLimit': True,
     'options': {
-        'createMarketBuyOrderRequiresPrice': false, # This means I can specify the cost of the trade instead of the price to minimize API requests and not have to calculate the price
+        'createMarketBuyOrderRequiresPrice': True, # This means I can specify the cost of the trade instead of the price to minimize API requests and not have to calculate the price
     },
 })
 
@@ -77,26 +77,39 @@ def send_market_order(pair, direction, quantity, live_trade=True):
             return open_sell_order(pair, quantity, live_trade=True)
 
 
-def open_buy_order(pair, quantity, live_trade=False):
+def open_buy_order(pair, cost, live_trade=False):
     if live_trade:
         #  order = exchange.createOrder(pair, 'market', 'buy', quantity)
-        order = exchange.create_market_buy_order(pair, quantity)
+        # Since create_market_order() requires price as a param for HitBTC and doesn't accept cost instead, I need to
+        # calculate the price derived from the desired cost which will be the stake amount of USDT for the first trade,
+        # and the full balance of any subsequent coins in the trade path, taking fees into account. This is only
+        # necessary on the buy side, not the sell side where the cost and the amount are the same
+
+        ticker_price = exchange.fetch_ticker(pair)
+        pprint(ticker_price)
+        fees = 0
+        amount = cost / ticker_price.get('ask') * 0.9
+        test_amount = amount * 0.01
+
+        # order = exchange.create_market_buy_order(pair, test_amount)
+        order = exchange.createOrder(pair, 'market', 'buy', test_amount)
+
         pprint(order)
         pprint(get_free_balances(exchange))
     elif not live_trade:
-        order = f"open_market_order({pair}, {quantity}, live_trade=False)"
+        order = f"create_market_buy_order({pair}, ({test_amount}))"
     return order
 
 
-def open_sell_order(pair, quantity, live_trade=False):
+def open_sell_order(pair, cost, live_trade=False):
     if live_trade:
-        # order = exchange.createOrder(pair, 'market', 'sell', quantity)
-        order = exchange.create_market_buy_order(pair, quantity)
+        # order = exchange.create_market_sell_order(pair, test_amount)
+        order = exchange.createOrder(pair, 'market', 'sell', cost)
         pprint(order)
         pprint(get_free_balances(exchange))
 
     elif not live_trade:
-        order = f"open_market_order({pair}, {quantity}, live_trade=False)"
+        order = f"create_market_sell_order({pair}, (ticker_price / {cost}))"
     return order
 
 
