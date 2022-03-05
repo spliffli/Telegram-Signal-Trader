@@ -90,12 +90,12 @@ current_trade_qty = 0   # Should find a way to not have to declare this globally
 
 def execute_trades(trade_path, signal_trades):
     start_usdt_balance = get_free_balances(exchange).get('USDT').get('free')
-    notification_msg = ''
+    trade_log = ''
     """
     print(f"Executing trades on {exchange}...\n"
           f"Starting USDT Balance: {usdt_free_balance}")
     """
-    notification_msg += (f"Executed signal on {exchange}...\n\n"
+    trade_log += (f"Executed signal on {exchange}...\n\n"
                          )
     current_trade = 0
     global current_trade_qty
@@ -124,17 +124,17 @@ def execute_trades(trade_path, signal_trades):
             print(f"{trade[0] + 1}. "
                   f"Opened Market Order: \n{direction} {current_trade_qty} {pair}\n")
             """
-            notification_msg += (f"{trade[0] + 1}. "
+            trade_log += (f"{trade[0] + 1}. "
                                  #  f"Opened Market Order: \n"
                                  f"{direction} {current_trade_qty} {pair}\n")
         except:
-            notification_msg += f"\nError: Failed to {direction.lower} {pair} as there wasn't enough balance.\nTrade sequence aborted."
+            trade_log += f"\nError: Failed to {direction.lower} {pair} as there wasn't enough balance.\nTrade sequence aborted."
 
     end_usdt_balance = get_free_balances(exchange).get('USDT').get('free')
-    notification_msg += (f"\nStart Balance: ${start_usdt_balance} (USDT)\n"
+    trade_log += (f"\nStart Balance: ${start_usdt_balance} (USDT)\n"
                          f"End Balance: ${end_usdt_balance} (USDT)\n"
                          f"Profit: ${end_usdt_balance-start_usdt_balance} (USDT)")
-    return notification_msg
+    return trade_log
 
 
 
