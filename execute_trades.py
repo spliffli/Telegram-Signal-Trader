@@ -140,6 +140,6 @@ def execute_trades(trade_path, signal_trades):
 
 # ###########[TESTING]###############
 
-print(execute_trades(sample_trade_path, sample_signal_trades))
+# print(execute_trades(sample_trade_path, sample_signal_trades))
 
 # ###################################

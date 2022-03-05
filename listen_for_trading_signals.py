@@ -43,16 +43,17 @@ with client:
 
         signal_trades = parse_msg_signals(msg_str)
         trade_path = calc_trade_path(signal_trades)
+        """
         print(f"[trade_path]\n{trade_path}\n[/trade_path]\n"
               f"[signal_trades]\n{signal_trades}\n[/signal_trades]\n")
-
+        """
         reply = ('\n\nTrade Signals detected. Initiating the following sequence of trades:\n'
                  f"\n{parse_trade_path_to_str(trade_path)}"
-                 "\n\nThis is just a test to see if the telegram signals can be properly parsed, and no actual trades "
-                 "were made")
-
+                 # f"\n{execute_trades(trade_path, signal_trades)}"
+                )
         await event.reply(reply)
-        execute_trades(trade_path, signal_trades)
+        trade_log = execute_trades(trade_path, signal_trades)
+        await event.reply(trade_log)
         # await client.disconnect()
 
 
