@@ -86,7 +86,7 @@ def open_buy_order(pair, cost, live_trade=False):
     pprint(ticker_price)
     fees = 0
     amount = cost / ticker_price.get('ask') * 0.9
-    test_amount = amount * 0.01
+    test_amount = amount
 
     if live_trade:
 

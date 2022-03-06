@@ -1,4 +1,3 @@
-import pprint
 
 sample_msg = ('Your arbitrage alert Bitrexx has been triggered!\n'
               '\n'

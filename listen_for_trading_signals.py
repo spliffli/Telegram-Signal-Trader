@@ -1,10 +1,5 @@
 import configparser
-from telethon import TelegramClient, functions, events
-from telethon.tl.functions.messages import (GetHistoryRequest)
-from telethon.tl.patched import Message
-import datetime
-import pprint
-import asyncio
+from telethon import TelegramClient, events
 
 from parse_msg import parse_msg_signals
 from calc_trade_path import calc_trade_path, parse_trade_path_to_str
@@ -24,11 +19,13 @@ username = config['Telegram']['username']
 
 client = TelegramClient(username, api_id, api_hash)
 
+notification_channel_id = config['Telegram']['notification_channel_id']
+exchange = config['Bot Settings']['exchange']
 
 with client:
-    _peer = 'jonathon_test'  # '@C5543577423'  #
-    entity = client.get_entity(_peer)
-    exchange = config['Bot Settings']['exchange']
+      # '@C5543577423'  #
+    notification_channel = client.get_entity(notification_channel_id)
+
 
     # client.send_message(entity=entity, message="hello")
 
@@ -55,7 +52,7 @@ with client:
                 )
         await event.reply(reply)
         trade_log = execute_trades(trade_path, signal_trades)
-        await client.send_message(entity='jonathon_test', message=trade_log)
+        await client.send_message(entity=notification_channel_id, message=trade_log)
         # await event.reply(trade_log)
         # await client.disconnect()
 
