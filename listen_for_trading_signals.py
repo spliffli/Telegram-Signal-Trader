@@ -24,8 +24,7 @@ notification_channel_id = config['Telegram']['notification_channel_id']
 exchange = config['Bot Settings']['exchange']
 
 
-async def main():
-    await client.start()
+async def authenticate():
     if not await client.is_user_authorized():
         await client.send_code_request(phone)
         try:
@@ -33,7 +32,10 @@ async def main():
         except SessionPasswordNeededError:
             await client.sign_in(password=input('Password: '))
 
-    notification_channel = client.get_entity(notification_channel_id)
+
+with client:
+    client.loop.run_until_complete(authenticate())
+
 
     @client.on(events.NewMessage(pattern=f'Your arbitrage alert {exchange} has been triggered!'))
     async def handler(event):
@@ -51,15 +53,9 @@ async def main():
         reply = ('\n\nTrade Signals detected. Initiating the following sequence of trades:\n'
                  f"\n{parse_trade_path_to_str(trade_path)}"
                  # f"\n{execute_trades(trade_path, signal_trades)}"
-                )
-
+                 )
         await client.send_message(entity=notification_channel_id, message=reply)
         trade_log = execute_trades(trade_path, signal_trades)
         await client.send_message(entity=notification_channel_id, message=trade_log)
-        # await event.reply(trade_log)
-        # await client.disconnect()
 
-
-with client:
-    client.run_until_disconnected(main())
-# client.run_until_disconnected()
+    client.run_until_disconnected()
