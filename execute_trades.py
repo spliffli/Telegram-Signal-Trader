@@ -1,6 +1,8 @@
 import ccxt
 import configparser
 from pprint import pprint
+from datetime import datetime
+
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -62,6 +64,13 @@ pprint(get_free_balances(exchange))
 
 def send_market_order(pair, direction, quantity, live_trade=True):
     # print(f"Opened Market Order: \n{direction} {quantity} {pair}")
+    timestamp = (f"timestamp: \n"
+                 f"{datetime.utcnow().strftime('%m/%d | %H:%M:%S.%f')}")
+    print(f"--------------------------------------------------------------------------------"
+          f"\nOpening Market Order: "
+          f"{direction} {quantity} {pair}\n"
+          f"timestamp: \n{timestamp}"
+          f"--------------------------------------------------------------------------------")
 
     if direction == 'BUY':
         if not live_trade:
@@ -89,13 +98,13 @@ def open_buy_order(pair, cost, live_trade=False):
     test_amount = amount
 
     if live_trade:
-
-
         # order = exchange.create_market_buy_order(pair, test_amount)
         order = exchange.createOrder(pair, 'market', 'buy', test_amount)
 
-        pprint(order)
-        pprint(get_free_balances(exchange))
+
+
+        # pprint(order)
+        # pprint(get_free_balances(exchange))
     elif not live_trade:
         order = f"create_market_buy_order({pair}, ({test_amount}))"
     return order
@@ -105,8 +114,8 @@ def open_sell_order(pair, cost, live_trade=False):
     if live_trade:
         # order = exchange.create_market_sell_order(pair, test_amount)
         order = exchange.createOrder(pair, 'market', 'sell', cost)
-        pprint(order)
-        pprint(get_free_balances(exchange))
+        # pprint(order)
+        # pprint(get_free_balances(exchange))
 
     elif not live_trade:
         order = f"create_market_sell_order({pair}, (ticker_price / {cost}))"
@@ -189,7 +198,7 @@ def convert_all_balances_to_usdt(exchange):
     """
 
     balances = get_free_balances(exchange)
-    pprint(balances)
+    # pprint(balances)
     print(f"Selling these balances:\n")
 
     for balance in enumerate(balances):

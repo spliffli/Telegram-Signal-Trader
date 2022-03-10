@@ -61,6 +61,7 @@ async def handler(event):
     await client.send_message(entity=notification_channel_id, message=trade_log)
 
 with client:
+    print("\nListening for signals...")
     client.loop.run_until_complete(authenticate())
 
     client.run_until_disconnected()
