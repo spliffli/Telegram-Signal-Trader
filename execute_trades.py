@@ -125,6 +125,37 @@ def open_sell_order(pair, cost, live_trade=False):
 current_trade_qty = 0   # Should find a way to not have to declare this globally
                         # since it's only used by the function execute_trades
 
+def check_profit(trade_path):
+    print(f"check_profit() called\n"
+          f"{str(trade_path)}")
+    usdt_start_balance = get_free_balances(exchange)['USDT']['free']
+
+    current_tickers = {}
+    sim_balance = usdt_start_balance
+    for item in enumerate(trade_path):
+        current_tickers[item[1]['pair']] = exchange.fetch_ticker(item[1]['pair'])
+        if item[1]['direction'] == 'BUY':
+            current_ask = current_tickers[item[1]['pair']]['ask']
+            trade_path[item[0]]['ask'] = current_ask
+            if item[0] > 0:
+                trade_path[item[0]]['post-balance'] = trade_path[item[0]-1]['post-balance'] / current_ask
+            elif item[0] == 0:
+                trade_path[item[0]]['post-balance'] = usdt_start_balance / current_ask
+            pass
+        elif item[1]['direction'] == 'SELL':
+            current_bid = current_tickers[item[1]['pair']]['bid']
+            trade_path[item[0]]['bid'] = current_bid
+            if item[0] > 0:
+                trade_path[item[0]]['post-balance'] = trade_path[item[0] - 1]['post-balance'] * current_bid
+            elif item[0] == 0:
+                trade_path[item[0]]['post-balance'] = usdt_start_balance * current_ask
+            pass
+        pass
+
+    end_balance = trade_path[-1]['post-balance']
+    profit = end_balance - usdt_start_balance
+    breakpoint()
+    return profit
 
 def execute_trades(trade_path, signal_trades):
     start_usdt_balance = get_free_balances(exchange).get('USDT').get('free')
