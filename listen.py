@@ -1,6 +1,7 @@
 import configparser
 import asyncio
 import platform
+import colorama
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -72,7 +73,11 @@ async def handler(event):
         await client.send_message(entity=notification_channel_id, message="Profit less than $1, not executing")
 
 with client:
-    print("\nListening for signals...")
+    jackpot_art_file = open('./jackpot-art-light.ans')
+    jackpot_art = jackpot_art_file.read()
+    print(jackpot_art)
+    print("Listening for signals...")
+    breakpoint()
     client.loop.run_until_complete(authenticate())
 
     client.run_until_disconnected()
