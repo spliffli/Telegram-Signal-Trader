@@ -2,6 +2,7 @@ import configparser
 import asyncio
 import platform
 import colorama
+
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -43,41 +44,43 @@ async def authenticate():
 @client.on(events.NewMessage(pattern=f'Your arbitrage alert {exchange} has been triggered!'))
 async def handler(event):
     # here received message, do something with event
-    msg_str = event.to_dict()['message'].to_dict()['message']
-
     # TODO: confirm that signal is coming from specified channel ID, otherwise don't execute
+    
+    msg_str = event.to_dict()['message'].to_dict()['message']
+    
+    if 'intra_exchange'in  msg_str:
+        print('new intra_exchange signal')
 
-    signal_trades = parse_msg_signals(msg_str)
-    trade_path = calc_trade_path(signal_trades)
-    """
-    print(f"[trade_path]\n{trade_path}\n[/trade_path]\n"
-          f"[signal_trades]\n{signal_trades}\n[/signal_trades]\n")
-    """
+        signal_trades = parse_msg_signals(msg_str)
+        trade_path = calc_trade_path(signal_trades)
+        """
+        print(f"[trade_path]\n{trade_path}\n[/trade_path]\n"
+            f"[signal_trades]\n{signal_trades}\n[/signal_trades]\n")
+        """
 
-    potential_profit = check_profit(trade_path)
-    print(f"Potential profit from signal: {potential_profit}")
+        potential_profit = check_profit(trade_path)
+        print(f"Potential profit from signal: {potential_profit}")
 
-    reply = ('\n\n**Trade Signals detected:**\n'
-             f"\n{parse_trade_path_to_str(trade_path)}\n"
-             # f"\n{execute_trades(trade_path, signal_trades)}"
-             f"Potential profit: {potential_profit}")
-    await client.send_message(entity=notification_channel_id, message=reply)
-
-
+        reply = ('\n\n**Trade Signals detected:**\n'
+                f"\n{parse_trade_path_to_str(trade_path)}\n"
+                # f"\n{execute_trades(trade_path, signal_trades)}"
+                f"Potential profit: {potential_profit}")
+        await client.send_message(entity=notification_channel_id, message=reply)
 
 
-    if potential_profit > 1:
-        trade_log = execute_trades(trade_path, signal_trades)
-        await client.send_message(entity=notification_channel_id, message=trade_log)
-    else:
-        await client.send_message(entity=notification_channel_id, message="Profit less than $1, not executing")
 
+        if potential_profit > 1:
+            trade_log = execute_trades(trade_path, signal_trades)
+            await client.send_message(entity=notification_channel_id, message=trade_log)
+        else:
+            await client.send_message(entity=notification_channel_id, message="Profit less than $1, not executing")
+    
 with client:
     jackpot_art_file = open('./jackpot-art-light.ans')
     jackpot_art = jackpot_art_file.read()
     print(jackpot_art)
     print("Listening for signals...")
-    breakpoint()
+    # breakpoint()
     client.loop.run_until_complete(authenticate())
 
     client.run_until_disconnected()
