@@ -41,14 +41,14 @@ async def authenticate():
             await client.sign_in(password=input('Password: '))
 
 
-@client.on(events.NewMessage(pattern=f'Your arbitrage alert {exchange} has been triggered!'))
+@client.on(events.NewMessage(pattern=f'Your arbitrage alert'))
 async def handler(event):
     # here received message, do something with event
     # TODO: confirm that signal is coming from specified channel ID, otherwise don't execute
     
     msg_str = event.to_dict()['message'].to_dict()['message']
     
-    if 'intra_exchange'in  msg_str:
+    if 'intra_exchange'in msg_str:
         print('new intra_exchange signal')
 
         signal_trades = parse_msg_signals(msg_str)
