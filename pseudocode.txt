@@ -1,0 +1,54 @@
+Listen for telegram messages
+Upon receipt of a message, parse into signals
+
+new signal event:
+    make sure none of the trades include fiat (USD)
+    ensure gain > 4% & profit > $100
+    check what exchange is first
+    arb_path = []
+    if stake_currency = USDT:
+        arb_path.append({
+            'type': 'trade',
+            'direction': 'BUY',
+            'base': 'XRP',
+            'quote': 'USDT',
+            'exchange': funded_exchange
+        })
+    if funded_exchange != first exchange:
+        arb_path.append({
+            'type': 'transfer',
+            'coin': 'XRP',
+            'from':funded_exchange,
+            'to': first exchange,
+            'amount': (balance - fees)
+        })
+    #convert XRP to trade_1 base currency
+    arb_path.append({
+        'type': 'trade',
+        'direction': 'SELL',
+        'base': XRP,
+        'quote': trades[0]['quote']
+        'exchange': trades[0]['exchange']
+    })
+    
+    for each trade in trades:
+        #make trade
+        arb_path.append({
+            'type': 'trade',
+            'direction': trade['direction'],
+            'base': trade['base'],
+            'quote': trade['quote'],
+            'exchange': trade['exchange']
+        })
+        if next trade exists:
+            transfer new asset to new exchange
+    update funded_exchange variable
+
+    if funded_exchange != first exchange:
+        transfer XRP from funded_exchange to first exchange
+    convert XRP to trade_1 base currency (USDT or BTC)
+    for each trade in trades:
+        make trade
+        if next trade exists:
+            transfer new asset to new exchange
+    update funded_exchange variable

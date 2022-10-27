@@ -1,50 +1,59 @@
+import re
 
-sample_msg = ('Your arbitrage alert Bitrexx has been triggered!\n'
-              '\n'
-              '*My message, to you rudy*\n'
-              '\n'
-              '0.10% intra_exchange arbitrage with volume\n'
-              '(1) BUY BTC/USDT @Bittrex\n'
-              '(2) SELL BTC/EUR @Bittrex\n'
-              ' To make a maximum profit of 22.2784 USD\n'
-              'For more info visit this link '
-              'https://www.koinknight.com/notification/621e86d0866655178cf6d339')
+urls = """
+http://python-engineer.com
+http://www.pyeng.net
+"""
 
+test_string = '123abc456789abc123ABC'
 
-def split_pair(pair: str):
-    if '/' in pair:
-        return pair.split('/')
-    else:
-        raise ValueError('Invalid trading pair')
-
-
-def parse_msg_signals(msg: str):
-    first_index = msg.find('(1)')
-    second_index = msg.find('(2)')
-
-    signal_first_trade_str = msg[first_index:msg.find('\n', first_index)]
-    signal_second_trade_str = msg[second_index:msg.find('\n', second_index)]
-
-    signal_first_trade_arr = signal_first_trade_str.split()
-    signal_second_trade_arr = signal_second_trade_str.split()
-
-    percent_gain = msg[msg.find('%')-4:msg.find('%')]
-    signal_type = msg[msg.find('% ')+2:msg.find('\n', msg.find('%'))]
-
-    max_profit_index = msg.find('maximum profit of ')+18
-    max_profit = msg[max_profit_index:msg.find(' USD', max_profit_index)]
-
-    keys = ['id', 'direction', 'pair', 'exchange']
-    first_trade = dict(zip(keys, signal_first_trade_arr))
-    second_trade = dict(zip(keys, signal_second_trade_arr))
-
-    first_trade['base'] = split_pair(first_trade['pair'])[0]
-    first_trade['quote'] = split_pair(first_trade['pair'])[1]
-
-    second_trade['base'] = split_pair(second_trade['pair'])[0]
-    second_trade['quote'] = split_pair(second_trade['pair'])[1]
-
-    return [first_trade, second_trade, percent_gain, signal_type, max_profit]
+msg_example = """
+Your arbitrage alert Coinbase Pro to Binance has been triggered!\n
+\n
+1.23% direct arbitrage with volume\n
+(1) BUY ACH/USD @Coinbase Pro\n
+(2) SELL ACH/USDT @Binance\n
+ To make a maximum profit of 202.1927 USD\n
+For more info visit this link https://www.koinknight.com/notification/6359563cf91a89333aa8056f
+"""
 
 
-# pprint.pprint(parse_msg_signals(sample_msg))
+def get_trades(msg):
+
+    pattern = re.compile(r"\((?P<trade_number>\d)\) (?P<direction>[^\s]+) (?P<base>[^\/]+)/(?P<quote>[^\s]+) @(?P<exchange>[^\n]+)")
+    matches = pattern.finditer(msg)
+    trades = []
+
+    for match in matches:
+        trades.append(match.groupdict())
+
+    return trades
+
+
+def get_arb_percentage(msg):
+    pattern = re.compile(r"(?<=\n)\d\.\d\d(?=%)")
+    match = pattern.search(msg)
+    return match.group()
+
+
+def get_max_profit(msg):
+    pattern = re.compile(r"(?<=maximum profit of )([^\s]+)(?= USD)")
+    match = pattern.search(msg)
+    return match.group()
+
+
+def parse_msg(msg):
+    percentage = get_arb_percentage(msg)
+    max_profit = get_max_profit(msg)
+    trades = get_trades(msg)
+
+    signal = {
+        "percentage": percentage,
+        "max_profit": max_profit,
+        "trades": trades
+    }
+
+    return signal
+
+
+#signal = parse_msg(msg_example)
